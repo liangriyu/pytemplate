@@ -1,0 +1,6 @@
+datasource:
+    password: ${MYSQL_PASS}
+    driverClassName: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://${MYSQL_HOST_PORT}/${MYSQL_DB_NAME}?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&pinGlobalTxToPhysicalConnection=true&useSSL=false
+    username: ${MYSQL_USER}
