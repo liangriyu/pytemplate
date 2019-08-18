@@ -1,6 +1,10 @@
+#数据库配置
 datasource:
-    password: ${MYSQL_PASS}
-    driverClassName: com.mysql.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://${MYSQL_HOST_PORT}/${MYSQL_DB_NAME}?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&pinGlobalTxToPhysicalConnection=true&useSSL=false
-    username: ${MYSQL_USER}
+    mysql:
+        host: ${MYSQL_HOST:127.0.0.1}
+        port: ${MYSQL_PORT:3306}
+        user: ${MYSQL_USER:root}
+        passwd: ${MYSQL_PASSWD:root}
+        db: ${MYSQL_DB:world}
+        charset: ${MYSQL_CHARSET:gbk}
+
