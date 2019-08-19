@@ -10,7 +10,7 @@ MysqlPool=PymysqlPool(host=Configs.get("datasource.mysql.host"),
                       user=Configs.get("datasource.mysql.user"),
                       passwd=Configs.get("datasource.mysql.passwd"),
                       db=Configs.get("datasource.mysql.db"),
-                      charset=Configs.get("datasource.mysql.charset")).pool
+                      charset=Configs.get("datasource.mysql.charset"))
 
 
 def close():

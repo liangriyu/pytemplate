@@ -5,6 +5,6 @@ datasource:
         port: ${MYSQL_PORT:3306}
         user: ${MYSQL_USER:root}
         passwd: ${MYSQL_PASSWD:root}
-        db: ${MYSQL_DB:world}
-        charset: ${MYSQL_CHARSET:gbk}
+        db: ${MYSQL_DB:huidian}
+        charset: ${MYSQL_CHARSET:utf8}
 

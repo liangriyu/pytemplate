@@ -1,7 +1,5 @@
-from hdcloud.base.config import Configs, Configs2
-from hdcloud.base.logging import Logger
+from hdcloud import context
 from hdcloud.datasource import MysqlPool
-from hdcloud.dbutil.mysql import Pymysql
 
 """
 **********************************************
@@ -9,16 +7,21 @@ from hdcloud.dbutil.mysql import Pymysql
 **********************************************
 """
 
+
 if __name__ == '__main__':
-    Logger.info("测试")
-    #################--脚本传参--###############
-    Configs.register()
-    #################--脚本传参--###############
-    Configs2.set("datasource.mysql.port",4664)
-    rs = Configs.get("datasource.mysql.port")
+    #必写项，上下文开始
+    context.start()
+
+    ########## 业务代码 ##########
+
+    mysql = MysqlPool.getConn()
+    rs = mysql.getOne("select * from test")
     print(rs)
-    # mysql = Pymysql(MysqlPool)
-    # rs = mysql.getOne("select * from city")
-    # print(rs)
+    mysql2 = MysqlPool.getConn()
+    rs = mysql2.getOne("select * from test")
+    print(rs)
+
+    # 必写项，上下文结束
+    context.close()
 
 

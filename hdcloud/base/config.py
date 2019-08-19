@@ -13,9 +13,13 @@ class _Config(object):
     _instance_lock = threading.Lock()
 
     def __init__(self):
-        file_path=os.path.abspath(os.path.dirname(__file__))[:-12]+"config.yaml"
-        self._configs=yaml.load(open(file_path,'r',encoding= 'utf-8'),Loader=yaml.FullLoader)
-        self._get_env(self._configs)
+        if not hasattr(self, '_init_falg'):
+            with self._instance_lock:
+                if not hasattr(self, '_init_falg'):
+                    self._init_falg = True
+                    file_path = os.path.abspath(os.path.dirname(__file__))[:-12] + "config.yaml"
+                    self._configs = yaml.load(open(file_path, 'r', encoding='utf-8'), Loader=yaml.Loader)
+                    self._get_env(self._configs)
 
     def __new__(self, *args, **kwargs):
         if not hasattr(_Config, "_instance"):
@@ -113,7 +117,6 @@ class _Config(object):
 
 Configs = _Config()
 
-Configs2 = _Config()
 
 
 

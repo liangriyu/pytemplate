@@ -3,7 +3,6 @@
 # @Author  : liangriyu
 
 import datetime
-import threading
 
 import pymysql
 from pymysql.cursors import DictCursor
@@ -11,8 +10,6 @@ from DBUtils.PooledDB import PooledDB
 import pandas as pd
 
 class PymysqlPool(object):
-
-    _instance_lock = threading.Lock()
 
     def __init__(self, host, port, user, passwd, db=None, charset="utf8", mincached=1, maxcached=20):
         self.pool = PooledDB(creator=pymysql,
@@ -27,12 +24,13 @@ class PymysqlPool(object):
                           charset=charset,
                           cursorclass=DictCursor)
 
-    # def __new__(self, *args, **kwargs):#单例模式
-    #     if not hasattr(PymysqlPool, "_instance"):
-    #         with PymysqlPool._instance_lock:
-    #             if not hasattr(PymysqlPool, "_instance"):
-    #                 PymysqlPool._instance = object.__new__(self)
-    #     return PymysqlPool._instance
+    def getConn(self):
+        return Pymysql(self.pool)
+
+    def close(self):
+        self.pool.close()
+
+
 
 class Pymysql(object):
 
