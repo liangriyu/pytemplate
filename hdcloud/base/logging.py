@@ -10,7 +10,7 @@ class _Logger(object):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         # 创建文件目录
-        logs_dir = os.path.abspath(os.path.dirname(__file__))[:-4]+"logs"
+        logs_dir = os.path.abspath(os.path.dirname(__file__))[:-12]+"logs"
         if os.path.exists(logs_dir) and os.path.isdir(logs_dir):
             pass
         else:
@@ -19,9 +19,9 @@ class _Logger(object):
         timestamp = time.strftime("%Y-%m-%d", time.localtime())
         logfilename = '%s.log' % timestamp
         logfilepath = os.path.join(logs_dir, logfilename)
-        fileHandler = logging.FileHandler(logfilepath)
+        fileHandler = logging.FileHandler(logfilepath, encoding='utf-8')
         # 设置输出格式
-        formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
         fileHandler.setFormatter(formatter)
         fileHandler.setLevel(logging.ERROR)
         # 添加内容到日志句柄中

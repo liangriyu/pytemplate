@@ -8,9 +8,7 @@ import pandas as pd
 
 
 
-class _PyHbase(object):
-
-    _instance_lock = threading.Lock()
+class PyHbasePool(object):
 
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 9090
@@ -20,14 +18,16 @@ class _PyHbase(object):
     DEFAULT_POOL_SIZE = 5
 
     # 连接池对象
-    _pool = None
-    _conn = None
-
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, timeout=None,
                  autoconnect=True, table_prefix=None,
                  table_prefix_separator=b'_', compat=DEFAULT_COMPAT,
                  transport=DEFAULT_TRANSPORT, protocol=DEFAULT_PROTOCOL, pool_size=DEFAULT_POOL_SIZE):
-
+        if port:
+            port=int(port)
+        if timeout:
+            timeout=int(timeout)
+        if pool_size:
+            pool_size=int(pool_size)
         self.host = host or self.DEFAULT_HOST
         self.port = port or self.DEFAULT_PORT
         self.timeout = timeout
@@ -49,13 +49,6 @@ class _PyHbase(object):
                                           transport=self.transport,
                                           protocol=self.protocol
                                           )
-
-    def __new__(self, *args, **kwargs):
-        if not hasattr(_PyHbase, "_instance"):
-            with _PyHbase._instance_lock:
-                if not hasattr(_PyHbase, "_instance"):
-                    _PyHbase._instance = object.__new__(self)
-        return _PyHbase._instance
 
     def get_by_rowkey(self, table_name, row_start, row_stop, columns=None, filter=None, timestamp=None,
              include_timestamp=False, batch_size=1000, scan_batching=None,
