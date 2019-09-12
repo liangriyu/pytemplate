@@ -6,8 +6,19 @@ import logging
 import os
 import time
 
+from hdcloud.base.config import Configs
+
+
 class _Logger(object):
-    def __init__(self):
+    level_relations = {
+        'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'warning': logging.WARNING,
+        'error': logging.ERROR,
+        'crit': logging.CRITICAL
+    }  # 日志级别关系映射
+
+    def __init__(self,level='info', prefix='', parent= ''):
         self.logger = logging.getLogger(__name__)
         # 创建文件目录
         logs_dir = os.path.abspath(os.path.dirname(__file__))[:-12]+"logs"
@@ -17,13 +28,19 @@ class _Logger(object):
             os.mkdir(logs_dir)
         # 修改log保存位置
         timestamp = time.strftime("%Y-%m-%d", time.localtime())
-        logfilename = '%s.log' % timestamp
+        if len(parent)>0:
+            logfilename = '%s/%s_%s.log' % (parent, prefix, timestamp)
+        else:
+            if len(parent)>0:
+                logfilename = '%s_%s.log' % (prefix,timestamp)
+            else:
+                logfilename = '%s.log' % timestamp
         logfilepath = os.path.join(logs_dir, logfilename)
         fileHandler = logging.FileHandler(logfilepath, encoding='utf-8')
         # 设置输出格式
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
         fileHandler.setFormatter(formatter)
-        fileHandler.setLevel(logging.ERROR)
+        fileHandler.setLevel(self.level_relations[level])
         # 添加内容到日志句柄中
         self.logger.addHandler(fileHandler)
         # 控制台句柄
@@ -45,4 +62,5 @@ class _Logger(object):
     def error(self, message):
         self.logger.error(message)
 
-Logger=_Logger()
+Configs.register()
+Logger=_Logger(Configs.get("logger.level"),Configs.get("logger.prefix"),Configs.get("logger.parent"))

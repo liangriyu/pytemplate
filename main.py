@@ -1,4 +1,5 @@
 from hdcloud import context
+from hdcloud.base.logging import Logger
 from hdcloud.datasource import MysqlPool
 
 """
@@ -14,12 +15,7 @@ if __name__ == '__main__':
 
     ########## 业务代码 ##########
 
-    mysql = MysqlPool.getConn()
-    rs = mysql.getOne("select * from test")
-    print(rs)
-    mysql2 = MysqlPool.getConn()
-    rs = mysql2.getOne("select * from test")
-    print(rs)
+    Logger.info("test")
 
     # 必写项，上下文结束
     context.close()

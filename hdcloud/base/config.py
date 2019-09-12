@@ -13,13 +13,14 @@ class _Config(object):
     _instance_lock = threading.Lock()
 
     def __init__(self):
-        if not hasattr(self, '_init_falg'):
+        if not hasattr(self, '_init_falg'):#实现单例
             with self._instance_lock:
                 if not hasattr(self, '_init_falg'):
                     self._init_falg = True
                     file_path = os.path.abspath(os.path.dirname(__file__))[:-12] + "config.yaml"
                     self._configs = yaml.load(open(file_path, 'r', encoding='utf-8'), Loader=yaml.Loader)
                     self._get_env(self._configs)
+                    self._merge_active_profile()
 
     def __new__(self, *args, **kwargs):
         if not hasattr(_Config, "_instance"):
@@ -28,7 +29,51 @@ class _Config(object):
                     _Config._instance = object.__new__(self)
         return _Config._instance
 
+    def _merge_active_profile(self):
+        """
+        合并启用额外配置文件字典
+        :return:
+        """
+        active_key="profile.active"
+        if self.check_key(active_key) and len(self.get(active_key))>0:
+            active = self.get(active_key)
+            file_path = os.path.abspath(os.path.dirname(__file__))[:-12] + "config-"+active+".yaml"
+            if os.path.exists(file_path):
+                configs = yaml.load(open(file_path, 'r', encoding='utf-8'), Loader=yaml.Loader)
+                self._get_env(configs)
+                tar_dict = self._merge(self._configs, configs)
+                self._configs = {**self._configs, **tar_dict}
+            else:
+                raise Exception("配置文件不存在:"+file_path)
+
+    def _merge(self, src_dict, tar_dict):
+        """
+        合并字典
+        :param src_dict:
+        :param tar_dict:
+        :return:
+        """
+        r = {}
+        for k, v in tar_dict.items():
+            if k in src_dict:
+                if isinstance(v, dict):
+                    r[k] = self._merge(src_dict[k], v)
+                    if isinstance(src_dict[k], dict):
+                        r[k]={**src_dict[k],**r[k]}
+                else:
+                    r[k] = tar_dict[k]
+            else:
+                r[k] = v
+        return r
+
+
+
     def _get_env(self,conf_dict):
+        """
+        获取环境变量替换默认配置
+        :param conf_dict: 配置文件字典
+        :return:
+        """
         for k, v in conf_dict.items():
             if isinstance(v, dict):
                 self._get_env(v)
@@ -45,6 +90,11 @@ class _Config(object):
 
 
     def get(self, key):
+        """
+        获取配置字典值
+        :param key: 字典key xxx.xxx.xx
+        :return:
+        """
         keys = str(key).split(".")
         l = len(keys)
         if l == 1:
@@ -63,6 +113,11 @@ class _Config(object):
         return dic[key]
 
     def check_key(self,key):
+        """
+        判断字典key是否存在
+        :param key: xxx.xxx.xx
+        :return:
+        """
         keys = str(key).split(".")
         if len(keys) == 1:
             return key in self._configs
@@ -80,6 +135,12 @@ class _Config(object):
             return True
 
     def set(self,key,value):
+        """
+
+        :param key:
+        :param value:
+        :return:
+        """
         if not self.check_key(key):
             raise excepts.NotAcceptException("key error: %s" % key)
         keys = str(key).split(".")
@@ -105,6 +166,10 @@ class _Config(object):
                         dic = dic[keys[i]]
 
     def register(self):
+        """
+        接收脚本传参
+        :return:
+        """
         args = sys.argv[1:]
         if args:
             for arg in args:
@@ -114,6 +179,9 @@ class _Config(object):
                     if not optarg:
                         raise excepts.NotAcceptException(('option -%s requires argument') % opt)
                     self.set(opt,optarg)
+
+    def print(self):
+        print(self._configs)
 
 Configs = _Config()
 

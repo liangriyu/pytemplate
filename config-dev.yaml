@@ -1,0 +1,11 @@
+
+#数据库配置
+datasource:
+    mysql:
+        host: ${MYSQL_HOST:127.0.0.1}
+        port: ${MYSQL_PORT:3306}
+        user: ${MYSQL_USER:root}
+        passwd: ${MYSQL_PASSWD:root}
+
+test: 测试
+
