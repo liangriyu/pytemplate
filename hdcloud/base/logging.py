@@ -18,48 +18,69 @@ class _Logger(object):
         'crit': logging.CRITICAL
     }  # 日志级别关系映射
 
+    timestamp = time.strftime("%Y-%m-%d", time.localtime())
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+
     def __init__(self,level='info', prefix='', parent= ''):
         self.logger = logging.getLogger(__name__)
-        # 创建文件目录
-        logs_dir = os.path.abspath(os.path.dirname(__file__))[:-12]+"logs"
-        if os.path.exists(logs_dir) and os.path.isdir(logs_dir):
-            pass
+        self.level = level
+        self.prefix = prefix
+        self.parent = parent
+        self.reset_parent_prefix(level,prefix,parent)
+
+    def set_file_handler(self):
+        if len(self.prefix)>0:
+            logfilename = '%s_%s.log' % (self.prefix,self.timestamp)
         else:
-            os.mkdir(logs_dir)
-        # 修改log保存位置
-        timestamp = time.strftime("%Y-%m-%d", time.localtime())
-        if len(parent)>0:
-            logfilename = '%s/%s_%s.log' % (parent, prefix, timestamp)
-        else:
-            if len(parent)>0:
-                logfilename = '%s_%s.log' % (prefix,timestamp)
-            else:
-                logfilename = '%s.log' % timestamp
-        logfilepath = os.path.join(logs_dir, logfilename)
+            logfilename = '%s.log' % self.timestamp
+        logfilepath = os.path.join(self.logs_dir, logfilename)
         fileHandler = logging.FileHandler(logfilepath, encoding='utf-8')
         # 设置输出格式
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
-        fileHandler.setFormatter(formatter)
-        fileHandler.setLevel(self.level_relations[level])
-        # 添加内容到日志句柄中
+        fileHandler.setFormatter(self.formatter)
+        fileHandler.setLevel(self.level_relations[self.level])
         self.logger.addHandler(fileHandler)
         # 控制台句柄
         console = logging.StreamHandler()
-        console.setLevel(logging.INFO)
-        console.setFormatter(formatter)
+        console.setLevel(self.level_relations[self.level])
+        console.setFormatter(self.formatter)
         self.logger.addHandler(console)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(self.level_relations[self.level])
+
+    def reset_parent_prefix(self,level=None, prefix='', parent= ''):
+        if level:
+            self.level = level
+        self.prefix = prefix
+        self.parent = parent
+        # 创建文件目录
+        self.logs_dir = os.path.abspath(os.path.dirname(__file__))[:-12] + "logs"
+        if len(self.parent)>0:
+            self.logs_dir = self.logs_dir + "/" + self.parent
+        if os.path.exists(self.logs_dir) and os.path.isdir(self.logs_dir):
+            pass
+        else:
+            os.mkdir(self.logs_dir)
+        self.set_file_handler()
+
+    def check_date(self):
+        cur_date = time.strftime("%Y-%m-%d", time.localtime())
+        if cur_date != self.timestamp:
+            self.set_file_handler()
+
 
     def info(self, message):
+        self.check_date()
         self.logger.info(message)
 
     def debug(self, message):
+        self.check_date()
         self.logger.debug(message)
 
     def warning(self, message):
+        self.check_date()
         self.logger.warning(message)
 
     def error(self, message):
+        self.check_date()
         self.logger.error(message)
 
 Configs.register()

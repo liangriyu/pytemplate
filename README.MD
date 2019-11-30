@@ -25,5 +25,6 @@
 ### 新增（2019-09-12）
 >1、支持多环境配置文件配置，参考config.yaml中profile.active属性
 2、支持动态配置日志输出级别及日志文件目录和前缀，参考config.yaml中logger.level\logger.prefix\logger.parent
-    动态脚本传参如：`python main.py -logger.prefix=test` 会生成test-2019-09-12.log的日志文件。
+    动态脚本传参如：`python main.py -logger.prefix=test` 
+    或者 `Logger.reset_parent_prefix(prefix="test",parent="")` 会生成test-2019-09-12.log的日志文件。
     主要目的区分不同的进程执行文件的日志输出

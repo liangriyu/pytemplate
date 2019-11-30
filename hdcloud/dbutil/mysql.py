@@ -189,7 +189,7 @@ class Pymysql(object):
         return pd.read_sql(sql, con=self._conn, index_col=index_col, coerce_float=coerce_float, params=params,
              parse_dates=parse_dates, columns=columns, chunksize=chunksize)
 
-    def pandas_write(self, table_name, data_frame, bacth_size=1000, update=False, update_keys=[], primary_key=None):
+    def pandas_write(self, table_name, data_frame, bacth_size=1000, auto_commit=False, update=False, update_keys=[], primary_key=None, ignore_update_key=[]):
         """
         持久化dataframe
         当update=True时，根据update_key指定的列作为条件更新。条件最好为主键
@@ -233,7 +233,8 @@ class Pymysql(object):
                     if col in update_keys:
                         where += " and " + col + "=%s"
                     else:
-                        upd_sql += col + "=%s,"
+                        if not col in ignore_update_key:
+                            upd_sql += col + "=%s,"
                 # where=" where"+where[4:]
 
                 sel_key = ",".join(update_keys)
@@ -258,7 +259,8 @@ class Pymysql(object):
                             if col in update_keys:
                                 update_where.append(row[col])
                             else:
-                                update_set.append(row[col])
+                                if not col in ignore_update_key:
+                                    update_set.append(row[col])
                         if primary_key and primary_key not in update_keys:
                             update_where.append(rs[str(primary_key)])
                         update_params = update_set+update_where
@@ -271,6 +273,8 @@ class Pymysql(object):
                     for j in range(bacth):
                         params = update_list[j * bacth_size:(j + 1) * bacth_size]
                         self.updateMany(upd_sql, params)
+                        if auto_commit:
+                            self.end()
             elif not update:
                 insert_list = data_frame.values.tolist()
             if len(insert_list) > 0:
@@ -278,6 +282,8 @@ class Pymysql(object):
                 for j in range(bacth):
                     params = insert_list[j*bacth_size:(j+1)*bacth_size]
                     self.insertMany(ins_sql,params)
+                    if auto_commit:
+                        self.end()
 
 
 

@@ -40,4 +40,14 @@ def add_timedelta(dtime,days=0,hours=0,minutes=0,seconds=0):
     dtime = dtime + timedelta(seconds=seconds)
     return dtime
 
+def vaild_date(date):
+    try:
+        if ":" in date:
+            datetime.strptime(date,DATETIME_FORMAT)
+        else:
+            datetime.strptime(date, DATETIME_FORMAT_D)
+        return 1
+    except Exception as e:
+        print(e)
+        return 0
 

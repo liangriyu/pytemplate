@@ -1,6 +1,5 @@
-from hdcloud import context
 from hdcloud.base.logging import Logger
-from hdcloud.datasource import MysqlPool
+from service import context
 
 """
 **********************************************

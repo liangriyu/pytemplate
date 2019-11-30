@@ -1,8 +1,8 @@
 #配置文件启用
 profile:
-    active: dev # 使用的环境(dev 开发;test 测试环境;prod 生产环境)
+    active: ${ACTIVE:dev} # 使用的环境(dev 开发;test 测试环境;prod 生产环境)
 logger:
-    level: 'info' # 日志级别：debug,info,warning,error,crit
+    level: ${LOG_LEVEL:info} # 日志级别：debug,info,warning,error,crit
     prefix: ${LOG_PREFIX:} #日志文件前缀
     parent: ${LOG_PARENT:} #日志父级目录
 
@@ -15,6 +15,6 @@ datasource:
         passwd: ${MYSQL_PASSWD:root}
         db: ${MYSQL_DB:huidian}
         charset: ${MYSQL_CHARSET:utf8}
-    test2: eret
+
 
 

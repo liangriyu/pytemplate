@@ -1,5 +1,5 @@
-from hdcloud import datasource
 from hdcloud.base.config import Configs
+from service import datasource
 
 
 def start():
