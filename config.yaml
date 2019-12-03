@@ -5,6 +5,11 @@ logger:
     level: ${LOG_LEVEL:info} # 日志级别：debug,info,warning,error,crit
     prefix: ${LOG_PREFIX:} #日志文件前缀
     parent: ${LOG_PARENT:} #日志父级目录
+email:
+    alarm: ${EMAIL_ALARM:true}
+    subject: ${EMAIL_SUBJECT:邮件主题}
+    kafka_topic:  ${KAFKA_TOPIC:app-email-alarm}
+    kafka_servers: ${KAFKA_SERVERS:hadoopdev01:19092,hadoopdev02:19092,hadoopdev03:19092}
 
 #数据库配置
 datasource:

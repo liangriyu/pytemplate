@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2019/8/18 20:57
 # @Author  : liangriyu
-from hdcloud.base.config import Configs
-from hdcloud.dbutil.mysql import PymysqlPool,Pymysql
 
+from hdcloud.base.config import Configs
+from hdcloud.dbutil.mysql import PymysqlPool
 
 MysqlPool=PymysqlPool(host=Configs.get("datasource.mysql.host"),
                       port=Configs.get("datasource.mysql.port"),

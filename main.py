@@ -9,14 +9,18 @@ from service import context
 
 
 if __name__ == '__main__':
-    #必写项，上下文开始
-    context.start()
+    try:
+        #必写项，上下文开始
+        context.start()
 
-    ########## 业务代码 ##########
+        ########## 业务代码 ##########
 
-    Logger.info("test")
-
-    # 必写项，上下文结束
-    context.close()
+        Logger.info("test")
+        raise
+    except Exception as e:
+        Logger.error(e)
+    finally:
+        # 必写项，上下文结束
+        context.close()
 
 

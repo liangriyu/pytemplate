@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2019/8/17 17:01
 # @Author  : liangriyu
-
+import json
 import logging
 import os
 import time
 
+from kafka import KafkaProducer
+
 from hdcloud.base.config import Configs
+from hdcloud.utils import baseutil
+from hdcloud.vo.email import MailMessage
 
 
 class _Logger(object):
@@ -26,7 +30,13 @@ class _Logger(object):
         self.level = level
         self.prefix = prefix
         self.parent = parent
+        self.fileHandler = None
         self.reset_parent_prefix(level,prefix,parent)
+        if Configs.get("email.alarm") == "true":
+            try:
+                self.producer = KafkaProducer(bootstrap_servers=Configs.get("email.kafka_servers"))
+            except Exception as e:
+                self.warning(str(e))
 
     def set_file_handler(self):
         if len(self.prefix)>0:
@@ -34,10 +44,13 @@ class _Logger(object):
         else:
             logfilename = '%s.log' % self.timestamp
         logfilepath = os.path.join(self.logs_dir, logfilename)
+        if self.fileHandler:
+            self.logger.removeHandler(self.fileHandler)
         fileHandler = logging.FileHandler(logfilepath, encoding='utf-8')
         # 设置输出格式
         fileHandler.setFormatter(self.formatter)
         fileHandler.setLevel(self.level_relations[self.level])
+        self.fileHandler = fileHandler
         self.logger.addHandler(fileHandler)
         # 控制台句柄
         console = logging.StreamHandler()
@@ -81,7 +94,23 @@ class _Logger(object):
 
     def error(self, message):
         self.check_date()
+        self.mailHandle(message)
         self.logger.error(message)
+
+
+    def mailHandle(self, message):
+        try:
+            if Configs.get("email.alarm") == "true":
+                vo = MailMessage()
+                vo.mailUid = baseutil.get_md5(str(message))
+                vo.mailContent = str(message)
+                vo.mailSubject = Configs.get("email.subject")
+                msg = json.dumps(vo.__dict__,cls=baseutil.DateEncoder,ensure_ascii=False)
+                future = self.producer.send(Configs.get("email.kafka_topic"), value=msg.encode())
+                result = future.get(timeout=60)
+                Logger.info(result)
+        except Exception as e:
+            self.logger.warning(e)
 
 Configs.register()
 Logger=_Logger(Configs.get("logger.level"),Configs.get("logger.prefix"),Configs.get("logger.parent"))
