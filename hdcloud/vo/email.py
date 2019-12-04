@@ -5,6 +5,8 @@ class MailMessage(object):
  def __init__(self):
     #邮件唯一标识（发送方生成）
     self.mailUid=""
+    #邮件配置编码
+    self.confCode=""
     #计划发送时间
     self.planSendTime=datetime.datetime.now()
     #邮件主题

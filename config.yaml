@@ -7,6 +7,7 @@ logger:
     parent: ${LOG_PARENT:} #日志父级目录
 email:
     alarm: ${EMAIL_ALARM:true}
+    code: ${EMAIL_CODE:DEMO-CODE-XXXXX} #数据库发送配置的编码
     subject: ${EMAIL_SUBJECT:邮件主题}
     kafka_topic:  ${KAFKA_TOPIC:app-email-alarm}
     kafka_servers: ${KAFKA_SERVERS:hadoopdev01:19092,hadoopdev02:19092,hadoopdev03:19092}

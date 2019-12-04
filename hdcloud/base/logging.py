@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import time
+import uuid
 
 from kafka import KafkaProducer
 
@@ -94,15 +95,18 @@ class _Logger(object):
 
     def error(self, message):
         self.check_date()
-        self.mailHandle(message)
         self.logger.error(message)
 
+    def error_and_mail(self, message):
+        self.error(message)
+        self._mailHandle(message)
 
-    def mailHandle(self, message):
+    def _mailHandle(self, message):
         try:
             if Configs.get("email.alarm") == "true":
                 vo = MailMessage()
-                vo.mailUid = baseutil.get_md5(str(message))
+                vo.mailUid = str(uuid.uuid1())
+                vo.confCode = Configs.get("email.code")
                 vo.mailContent = str(message)
                 vo.mailSubject = Configs.get("email.subject")
                 msg = json.dumps(vo.__dict__,cls=baseutil.DateEncoder,ensure_ascii=False)
