@@ -78,6 +78,7 @@ class _Logger(object):
     def check_date(self):
         cur_date = time.strftime("%Y-%m-%d", time.localtime())
         if cur_date != self.timestamp:
+            self.timestamp = cur_date
             self.set_file_handler()
 
 
