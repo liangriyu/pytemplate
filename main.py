@@ -1,29 +1,27 @@
-import uuid
+from gevent.pywsgi import WSGIServer
 
-from hdcloud.base.logging import Logger
 from service import context
+from web_model import rpc_api
+from flask import Flask
+from geventwebsocket.handler import WebSocketHandler
+
+# -*- coding: utf-8 -*-
+# @Time    : 2019/8/17 17:01
+# @Author  : liangriyu
 
 """
 **********************************************
 *****************  主程序  *******************
 **********************************************
 """
-
+app = Flask(__name__)
 
 if __name__ == '__main__':
+
     try:
-        #必写项，上下文开始
-        context.start()
-
-        ########## 业务代码 ##########
-
-        Logger.info("test")
-        # print(str(uuid.uuid1()))
-        raise
-    except Exception as e:
-        Logger.error_and_mail("测试告警邮件")
+        context.start()    # 必写项，上下文开始
+        app.register_blueprint(rpc_api, url_prefix='/data/api')
+        http_server = WSGIServer(('0.0.0.0', 9000), app, handler_class=WebSocketHandler)
+        http_server.serve_forever()
     finally:
-        # 必写项，上下文结束
         context.close()
-
-

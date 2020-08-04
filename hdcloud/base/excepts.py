@@ -7,3 +7,6 @@ class NotAcceptException(Exception):
     不可接受参数
     """
     pass
+
+class ValidateException(Exception):
+    pass

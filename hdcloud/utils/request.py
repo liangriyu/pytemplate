@@ -23,7 +23,7 @@ def get(url, headers=None, params=None, proxies=None, timeout=None, except_fun=N
     res = requests.get(url, params=params, headers=headers, proxies=proxies, timeout=timeout)
     return get_response(res, except_fun)
 
-def post(url, headers=None, data=None, proxies=None, timeout=None, except_fun=None):
+def post(url, headers=None, data=None,json=None, proxies=None, timeout=None, except_fun=None):
     '''
     POST请求
     :param url:
@@ -35,7 +35,7 @@ def post(url, headers=None, data=None, proxies=None, timeout=None, except_fun=No
     :return:
     '''
     url = quote(url, safe=string.printable)
-    res = requests.post(url, headers=headers, data=data, proxies=proxies, timeout=timeout)
+    res = requests.post(url, headers=headers, data=data,json=json, proxies=proxies, timeout=timeout)
     return get_response(res, except_fun)
 
 def get_response(res, except_fun=None):
@@ -48,6 +48,7 @@ def get_response(res, except_fun=None):
         if except_fun:
             return except_fun
         else:
+            print(res.text)
             raise Exception(res.status_code)
     else:
         content_type = res.headers['Content-Type']

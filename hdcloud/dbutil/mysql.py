@@ -9,12 +9,15 @@ from pymysql.cursors import DictCursor
 from DBUtils.PooledDB import PooledDB
 import pandas as pd
 
+from hdcloud.utils import dateutil
+
+
 class PymysqlPool(object):
 
     def __init__(self, host, port, user, passwd, db=None, charset="utf8", mincached=1, maxcached=20):
         self.pool = PooledDB(creator=pymysql,
-                          mincached=mincached,
-                          maxcached=maxcached,
+                          mincached=int(mincached),
+                          maxcached=int(maxcached),
                           host=host,
                           port=int(port),
                           user=user,
@@ -29,8 +32,6 @@ class PymysqlPool(object):
 
     def close(self):
         self.pool.close()
-
-
 
 class Pymysql(object):
 
@@ -188,6 +189,89 @@ class Pymysql(object):
         """
         return pd.read_sql(sql, con=self._conn, index_col=index_col, coerce_float=coerce_float, params=params,
              parse_dates=parse_dates, columns=columns, chunksize=chunksize)
+    def insert_dict(self, table_name,data_dict={},update=False, update_keys=[], primary_key=None, ignore_update_key=[]):
+        """
+
+        :param table_name:
+        :param data_dict:
+        :param update:
+        :param update_keys:
+        :param primary_key:
+        :param ignore_update_key:
+        :return:
+        """
+        if (len(data_dict)>0) and (type(data_dict) == dict):
+            # 找出日期时间类型
+            for k, v in data_dict.items():
+                if isinstance(v, datetime.date):
+                    data_dict[k] = dateutil.format2str(v)
+                elif isinstance(v, datetime.datetime):
+                    data_dict[k] = dateutil.format2str(v)
+                elif isinstance(v, pd.Timedelta):  # 对time（mysql）类型格式化转换
+                    data_dict[k] = str((datetime.datetime.strptime('1970-01-01 00:00:00','%Y-%m-%d %H:%M:%S') + v)
+                                                            .strftime("%H:%M:%S"))
+            cols = list(data_dict.keys())
+            # 组装insert语句
+            insert_cols = ','.join(cols)
+            ins_sql = "insert into " + table_name + "(" + insert_cols + ") values("
+            for i in range(len(cols)):
+                if i == 0:
+                    ins_sql += "%s"
+                else:
+                    ins_sql += ",%s"
+
+            ins_sql += ")"
+            update_list = []
+            insert_list = []
+            if update and len(update_keys)>0:
+                # 组装update语句
+                upd_sql = "update " + table_name + " set "
+                where = " where 1=1"
+                for col in cols:
+                    if col in update_keys:
+                        where += " and " + col + "=%s"
+                    else:
+                        if not col in ignore_update_key:
+                            upd_sql += col + "=%s,"
+
+                sel_key = ",".join(update_keys)
+                if primary_key and primary_key not in update_keys:
+                    sel_key=sel_key +","+str(primary_key)
+                    where= where+ " and " + str(primary_key) + "=%s"
+                upd_sql = upd_sql[:-1] + where
+
+                #根据update_key查询是否存在
+                sel = "select "+sel_key +" from "+ table_name+" where 1=1"
+                sel_params = []
+                for key in update_keys:
+                    sel += " and " + key + "=%s"
+                    sel_params.append(data_dict[key])
+                sel += " limit 1"
+                rs = self.getOne(sel,sel_params)
+                #若存在则更新
+                if rs:
+                    update_set = []
+                    update_where = []
+                    for col in cols:
+                        if col in update_keys:
+                            update_where.append(data_dict[col])
+                        else:
+                            if not col in ignore_update_key:
+                                update_set.append(data_dict[col])
+                    if primary_key and primary_key not in update_keys:
+                        update_where.append(rs[str(primary_key)])
+                    update_params = update_set+update_where
+                    update_list=update_params
+                else:
+                    for col in cols:
+                        insert_list.append(str(data_dict[col]))
+            elif not update:
+                for col in cols:
+                    insert_list.append(str(data_dict[col]))
+            if len(update_list) > 0:
+                self.update(upd_sql, update_list)
+            if len(insert_list) > 0:
+                self.insert(ins_sql, insert_list)
 
     def pandas_write(self, table_name, data_frame, bacth_size=1000, auto_commit=False, update=False, update_keys=[], primary_key=None, ignore_update_key=[]):
         """

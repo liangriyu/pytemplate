@@ -173,7 +173,7 @@ class _Config(object):
         args = sys.argv[1:]
         if args:
             for arg in args:
-                if str(arg).startswith('-') and args != '-':
+                if str(arg).startswith('-') and args != '-'  and str(arg).find('=')>0:
                     i = arg.index('=')
                     opt, optarg = arg[1:i], arg[i + 1:]
                     if not optarg:
