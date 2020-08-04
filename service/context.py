@@ -11,6 +11,8 @@ def start():
 
 def close():
     datasource.close()
+    if Logger.producer:
+        Logger.producer.close()
 
 
 def sender(msg):

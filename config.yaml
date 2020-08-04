@@ -12,15 +12,7 @@ email:
     kafka_topic:  ${KAFKA_TOPIC:app-email-alarm}
     kafka_servers: ${KAFKA_SERVERS:hadoopdev01:19092,hadoopdev02:19092,hadoopdev03:19092}
 
-#数据库配置
-datasource:
-    mysql:
-        host: ${MYSQL_HOST:127.0.0.1}
-        port: ${MYSQL_PORT:3306}
-        user: ${MYSQL_USER:root}
-        passwd: ${MYSQL_PASSWD:root}
-        db: ${MYSQL_DB:huidian}
-        charset: ${MYSQL_CHARSET:utf8}
+
 
 
 

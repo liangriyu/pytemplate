@@ -6,6 +6,6 @@ datasource:
         port: ${MYSQL_PORT:3306}
         user: ${MYSQL_USER:root}
         passwd: ${MYSQL_PASSWD:root}
-
-test: 测试
+        db: ${MYSQL_DB:huidian}
+        charset: ${MYSQL_CHARSET:utf8}
 

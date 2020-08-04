@@ -18,7 +18,7 @@ if __name__ == '__main__':
         ########## 业务代码 ##########
 
         Logger.info("test")
-        print(str(uuid.uuid1()))
+        # print(str(uuid.uuid1()))
         raise
     except Exception as e:
         Logger.error_and_mail("测试告警邮件")

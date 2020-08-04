@@ -11,6 +11,7 @@ def task1():
     res = Resp()
     try:
         res.message="数据处理成功。"
+        Logger.info("test...")
     except:
         res.code = StatusCode.FAILED.value
         res.message = "数据处理失败。"
